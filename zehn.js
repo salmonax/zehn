@@ -34,8 +34,10 @@ const ascii = {
 };
 
 const audio = {
-  telemetry: new Audio('/type3.mp3'),
-  crt: new Audio('/crt.mp3'),
+  fx: {
+    telemetry: new Audio('/type3.mp3'),
+    crt: new Audio('/crt.mp3'),
+  },
   music: {
     apartment: new Audio('/apartment.ogg'),
     'office building': new Audio('/office.ogg'),
@@ -48,7 +50,7 @@ const audio = {
 };
 
 const _debug = {
-  skipIntro: true,
+  skipIntro: false,
 };
 
 const makePresenter = (binding) => ({
@@ -101,7 +103,7 @@ const makeEngine = (world) => ({ // just following convention
         (room._visitCount === 1 ? (room.first ? trimAndSpace(room.first) + '\n\n' : '') : '') + trimAndSpace(room.always));
 
     $('.description').innerText = '';
-    audio.telemetry.play();
+    audio.fx.telemetry.play();
 
     const lastRoomMusic = audio.music[lastLocName];
     const roomMusic = audio.music[locName];
@@ -112,7 +114,7 @@ const makeEngine = (world) => ({ // just following convention
     }
 
     type(description, c => {
-      audio.telemetry.currentTime = 0;
+      audio.fx.telemetry.currentTime = 0;
       $('.description').innerText += c;
     }, 10, 50);
 
@@ -149,18 +151,18 @@ const makeEngine = (world) => ({ // just following convention
   startIntro() {
     //- audio.music['office building'].play();
     $('.zehn .logo').innerText = ascii.zehn;
-    $('.zehn .backdrop').innerText = `ZEHN is a cyberpunk adventure set in 2032 that takes ZEHN minutes to complete or it resets the universe was ZEHN is ZEHN and will always be ZEHN made the suns ZEHN made the worlds ZEHN created the lives and the places they inhabit ZEHN moves them here ZEHN put them there they go as ZEHN says then do as ZEHN tells them ZEHM is and ZEHN shall always be `.repeat(100);
+    $('.zehn .backdrop').innerText = `ZEHN is a transistorpunk adventure set in 2032 that takes ZEHN minutes to complete or it resets the universe was ZEHN is ZEHN and will always be ZEHN made the suns ZEHN made the worlds ZEHN created the lives and the places they inhabit ZEHN moves them here ZEHN put them there they go as ZEHN says then do as ZEHN tells them ZEHM is and ZEHN shall always be `.repeat(100);
     audio.music.zehn.play();
 
     setTimeout(() => {
-      audio.telemetry.play();
+      audio.fx.telemetry.play();
       type(`ARGH, STOP DREAMING ABOUT THIS KEYGEN INTRO STUFF!`, c => {
-        audio.telemetry.currentTime = 0;
+        audio.fx.telemetry.currentTime = 0;
         $('.awaken .comment').innerText += c;
       }, 10, 50)
         .then(_ => {
           type('WAKE UP!', c => {
-            audio.telemetry.currentTime = 0;
+            audio.fx.telemetry.currentTime = 0;
             $('.awaken .link').innerText += c;
           }, 10, 50);
         });
@@ -186,7 +188,7 @@ const makeAction = (engine) => ({
     engine.initGame();
   },
   go: _ => {
-    audio.crt.play();
+    audio.fx.crt.play();
     $('.white').classList.add('on');
     $('.go').classList.add('off');
     setTimeout(() => engine.startIntro(), 450);
@@ -301,8 +303,7 @@ function type(text, cb = console.log, delay = 200, slack = 100) {
     .reduce((last, next) => last.then(next), Promise.resolve());
 }
 
-//- parseTime('14:30');
-// Bleh, just kluding this for now
+// Bleh, just kludging this for now
 function parseTime(timeString, startTime = engine.clock.start) {
   const dateString =
     new Date(engine.clock.start).toLocaleDateString("en-US", {timeZone: "America/Los_Angeles"});
@@ -317,12 +318,5 @@ function parseTime(timeString, startTime = engine.clock.start) {
 }
 
 function getWorld(yml) {
-  return fetch(yml)
-    .then(r => r.text())
-    .then(txt => {
-      return jsyaml.load(
-        txt,
-      );
-
-    })
+  return fetch(yml).then(r => r.text()).then(jsyaml.load);
 }
