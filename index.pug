@@ -1,313 +1,6 @@
 head
-  style.
-    @font-face {
-      font-family: 'dos';
-      src: url('./dos-font.ttf');
-    }
-    html, body {
-      height: 100%;
-      width: 100%;
-      margin: 0;
-      color: white;
-    }
-    body {
-      background: #333;
-      font-family: dos;
-      overflow: hidden;
-    }
-    body * {
-      box-sizing: border-box;
-    }
-    .button {
-      cursor: pointer;
-      user-select: none;
-      background: grey;
-      color: white;
-      border: 1px outset black;
-      display: inline-block;
-      padding: 10px;
-      margin: 10px;
-    }
-    .status {
-      //- height: 20px;
-      padding: 10px;
-      background: linear-gradient(#91f, purple);
-      display: flex;
-    }
-    .status .time {
-      margin-left: auto;
-    }
-    .text {
-      white-space: pre-wrap;
-      width: 90%;
-      padding: 20px;
-    }
-    .map, .map * {
-      user-select: none;
-    }
-    .map {
-      position: absolute;
-      bottom: 0px;
-      //- background: green;
-      width: 50%;
-      height: 30%;
-    }
-    .v-line {
-      width: 1px;
-      background: white;
-      height: 10px;
-      pointer-events: none;
-    }
-    .h-line {
-      height: 1px;
-      background: white;
-      width: 10px;
-      pointer-events: none;
-    }
-    .map .locale {
-      position: absolute;
-      text-align: center;
-      height: 25px;
-      //- white-space: nowrap;
-      width: 120;
-      cursor: pointer;
-      font-size: 10px;
-      padding: 5px;
-      top: 0px;
-      left: 0px;
-      border: 1px solid white;
-      box-sizing: border-box;
-    }
-    .row {
-      margin-left: 190px;
-      align-items: center;
-      justify-content: center;
-      display: flex;
-    }
-    .description {
-      box-shadow: 6px 6px #0004, inset 0px 0px 0px 2px #0004;
-      text-shadow: 3px 2px #0003;
-      line-height: 18px;
-      min-height: 250px;
-      padding: 10px;
-      margin: 20px;
-      background: linear-gradient(#aa3, #3aa);
-      border: 3px solid white;
-      white-space: pre-wrap;
-    }
-    .halftone {
-      //- display: none;
-      position: absolute;
-      z-index: 500;
-      left: 0;
-      top: 0;
-      opacity: 0.1;
-      height: 100%;
-      width: 100%;
-      pointer-events: none;
-      background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAYAAABWKLW/AAAAG0lEQVQYV2NMS1v1n4GBgWHWrDBGRhQOSBQGANfFCASW3qN7AAAAAElFTkSuQmCC) repeat;
-    }
-    .scanlines {
-      position: absolute;
-      pointer-events: none;
-      left: 0px;
-      right: 0px;
-      top: 0px;
-      bottom: -4px;
-      opacity: 0.25;
-      background: linear-gradient(#f4f, #000, #f4f);
-      background-size: 100% 4px;
-      z-index: 500;
-      animation: scan 50ms linear infinite;
-      transform: translate3d(0,0,0);
-      backface-visibility: hidden;
-    }
-    @keyframes scan {
-      0% {
-        transform: translate3d(0, 0, 0);
-      }
-      100% {
-        transform: translate3d(0, -4px, 0);
-      }
-    }
-    .background {
-      overflow: hidden;
-      position: absolute;
-      left: 0px;
-      right: 0px;
-      top: 0px;
-      bottom: 0px;
-      z-index: -1;
-    }
-    .background * {
-      position: absolute;
-      opacity: 0.5;
-      width: 200%;
-      height: 200%;
-      background-size: 50% 50%;
-    }
-    .background .horizontal {
-      //- opacity: 0;
-      background-image: radial-gradient(#fff8, #0004), linear-gradient(#fff8, #0004, #fff8);
-      animation: v-move 20s alternate linear infinite;
-
-    }
-    .background .vertical {
-      //- opacity: 1;
-      background-image: linear-gradient(90deg, #fff8, #0004, #fff8), radial-gradient(#fff8, #0004);
-      animation: h-move 10s alternate linear infinite;
-    }
-    @keyframes v-move {
-      0% {
-        transform: translateY(-50%);
-      }
-      100% {
-        transform: translateY(0%);
-      }
-    }
-    @keyframes h-move {
-      0% {
-        transform: translateX(0%);
-      }
-      100% {
-        transform: translateX(-50%);
-      }
-    }
-    .zehn {
-      line-height: 10px;
-      color: #0f0;
-      font-family: monospace;
-      white-space: pre-wrap;
-      justify-content: center;
-      align-items: center;
-      top: 0;
-      left: 0;
-      z-index: 10;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: black;
-      display: flex;
-      perspective: 600px;
-      animation: zehn-hue 5s linear alternate infinite;
-      overflow: hidden;
-    }
-    .zehn .logo {
-      margin-top: -100px;
-      font-family: monospace;
-      animation: zehn 5s linear alternate infinite;
-    }
-    .zehn .backdrop {
-      opacity: 0.4;
-      line-height: 20px;
-      transform: rotate(-30deg);
-      width: 200%;
-      position: absolute;
-      white-space: wrap;
-      word-break: break-all;
-      animation: zehn-scroll 400ms linear infinite;
-    }
-    .go {
-      font-family: monospace;
-      font-size: 30px;
-      transition: transform 100ms;
-      cursor: pointer;
-    }
-    .go:hover {
-      transform: scale(1.5);
-    }
-    .awaken {
-      font-family: dos;
-      text-align: center;
-      //- font-size: 24px;
-      //- line-height: 40px;
-      padding-top: 50px;
-      align-self: flex-start;
-      position: absolute;
-      line-height: 30px;
-    }
-    .awaken .link {
-      text-decoration: underline;
-      font-weight: 900;
-      cursor: pointer;
-      color: #8f8;
-    }
-    .hidden {
-      display: none;
-    }
-    .white.on {
-      opacity: 0;
-      transition: opacity 1300ms 660ms ease-out;
-      animation: switch-on 400ms cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
-    }
-    .white {
-      position: absolute;
-      //- left: 0;
-      //- top: 0;
-      //- bottom: 0;
-      //- right: 0;
-      z-index: 100;
-      background: white;
-      pointer-events: none;
-    }
-    .go.off {
-      display: none;
-    }
-
-    @keyframes zehn {
-      0% {
-        transform: scale(1,2) translateY(0px);
-      }
-      25% {
-        transform: scale(2,4);
-      }
-      50% {
-        transform: scaleY(2);
-      }
-      75% {
-        transform: rotateX(360deg) rotateZ(180deg);
-      }
-    }
-    @keyframes zehn-hue {
-      0% {
-        filter: hue-rotate(0deg);
-      }
-      100% {
-        filter: hue-rotate(360deg);
-      }
-    }
-    @keyframes zehn-scroll {
-      0% {
-        transform: translate(0%);
-      }
-      100% {
-        transform: translate(-25%);
-      }
-    }
-
-    @keyframes switch-on {
-      0% {
-        height: 20px;
-        width: 1vw;
-      }
-      10% {
-        height: 10px;
-      }
-      50% {
-        width: 90vw;
-        height: 2px;
-      }
-      60% {
-        height: 2px;
-        width: 100vw;
-      }
-      100% {
-        width: 100vw;
-        height: 100vh;
-      }
-    }
-
-
+  script(src="/js-yaml.min.js")
+  link(rel="stylesheet" href="main.css")
 body
   //- .background
   //-   .vertical
@@ -316,6 +9,13 @@ body
     .location
     .time
   .description
+  .chum-dex
+    .chum-bar
+      .icon Quint
+      .icon Fremp
+      .icon Dee
+    .side
+    .body
   .zehn
     .backdrop
     .logo
@@ -354,14 +54,27 @@ body
     };
     const pipe = (...fs) => fs.reduce((a, f) => f(a), null);
 
-    const zehn = `
-      ███████╗███████╗██╗  ██╗███╗   ██╗
-      ╚══███╔╝██╔════╝██║  ██║████╗  ██║
-        ███╔╝ █████╗  ███████║██╔██╗ ██║
-       ███╔╝  ██╔══╝  ██╔══██║██║╚██╗██║
-      ███████╗███████╗██║  ██║██║ ╚████║
-      ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
-    `;
+
+    const ascii = {
+      zehn: `
+        ███████╗███████╗██╗  ██╗███╗   ██╗
+        ╚══███╔╝██╔════╝██║  ██║████╗  ██║
+          ███╔╝ █████╗  ███████║██╔██╗ ██║
+         ███╔╝  ██╔══╝  ██╔══██║██║╚██╗██║
+        ███████╗███████╗██║  ██║██║ ╚████║
+        ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
+      `,
+      chum: `
+        C
+        H
+        U
+        M
+        |
+        D
+        E
+        X
+      `,
+    };
 
     const audio = {
       telemetry: new Audio('/type3.mp3'),
@@ -384,6 +97,24 @@ body
       revealed: {
         apartment: true,
         street: true,
+      },
+      chumdex: {
+        Fremp: {
+          '12:30': [
+            `Hey Pluff, waaasaaap?`,
+            `We still on for 7:30pm?`,
+          ],
+          '16:12': [
+            `Pfft, what'd you do, forget to wake up again?`,
+            `Well whatever, I'll be over at Vesuvio's like we said.`,
+          ],
+          '16:41': [
+            `PLUFF! RESPOND, NOW.`,
+          ],
+        },
+      },
+      irl: {
+
       },
       orientation: {
         bathroom: { s: 'apartment', n: 'secret bathroom' },
@@ -494,16 +225,22 @@ body
       _gameClockInterval: null,
       _playerLoc: null,
       clock: {
-        start: Date.parse(`5/7/2032 15:30:00 PST`),
-        end: Date.parse(`5/8/2032 15:30:00 PST`),
+        start: Date.parse(`5/7/2032 15:30:00 PDT`),
+        end: Date.parse(`5/8/2032 15:30:00 PDT`),
         durationInMinutes: 25,
         getGameTime(elapsed) {
-          return this.start + (this.end - this.start)/1000/60/this.durationInMinutes*elapsed;
+          return Math.round(
+            this.start + (this.end - this.start)/1000/60/this.durationInMinutes*elapsed,
+          );
         }
       },
+      get gameTime() {
+        return this.clock.getGameTime(this._elapsed);
+      },
       loadLoc(locName) {
-        console.log('!!!!', locName)
-        const trim = t => t.trim().replace(/(\n+)\s*/g,'$1');
+        console.log('!!!!', locName);
+        //- window.argh = this.world.description[locName].first;
+        const trimAndSpace = t => t.trim().replace(/(\n+)\s*/g,'$1').replace(/\n{1}/g, '\n\n');
         const lastLocName = this._playerLoc;
         const room = this.world.description[locName] || this.world.description.any;
         if (!room) return;
@@ -513,7 +250,7 @@ body
         const description =
           ((typeof room === 'string') ?
             room :
-            (room._visitCount === 1 ? (room.first ? trim(room.first) + '\n\n' : '') : '') + trim(room.always));
+            (room._visitCount === 1 ? (room.first ? trimAndSpace(room.first) + '\n\n' : '') : '') + trimAndSpace(room.always));
 
         $('.description').innerText = '';
         audio.telemetry.play();
@@ -548,18 +285,22 @@ body
         this._startTime = null;
       },
       loop() {
+        // Get current gameTime
         const { clock } = this;
-        const elapsed = Date.now() - this._startTime;
+        const elapsed = this._elapsed = Date.now() - this._startTime;
         const gameTime = clock.getGameTime(elapsed);
+        // End game, if applicable
         if (gameTime > this.clock.end) {
           alert('GAME OVER');
           this.stopLoop();
         }
+        // Update status menu
         $('.time').innerText = (new Date(gameTime)).toLocaleString();
+        //
       },
       startIntro() {
         //- audio.music['office building'].play();
-        $('.zehn .logo').innerText = zehn;
+        $('.zehn .logo').innerText = ascii.zehn;
         $('.zehn .backdrop').innerText = `ZEHN is a cyberpunk adventure set in 2032 that takes ZEHN minutes to complete or it resets the universe was ZEHN is ZEHN and will always be ZEHN made the suns ZEHN made the worlds ZEHN created the lives and the places they inhabit ZEHN moves them here ZEHN put them there they go as ZEHN says then do as ZEHN tells them ZEHM is and ZEHN shall always be `.repeat(100);
         audio.music.zehn.play();
 
@@ -575,7 +316,7 @@ body
                 $('.awaken .link').innerText += c;
               }, 10, 50);
             });
-        }, 12000);
+        }, 6000);
 
       },
       stopIntro() {
@@ -583,6 +324,7 @@ body
         $('.zehn').classList.add('hidden');
       },
       initGame() {
+        $('.chum-dex .side').innerText = ascii.chum;
         this.startLoop();
         this.loadLoc('apartment');
       }
@@ -616,17 +358,25 @@ body
       '.go': action.go,
     });
 
+    init();
+    async function init() {
+      const world = window.world = await getWorld('game.yml');
+      const engine = window.engine =  makeEngine(world);
+      const action = window.action =  makeAction(engine);
+      const domBinding = window.domBinding =  makeDomBinding(action);
+      const presenter =  window.presenter = makePresenter(domBinding);
 
-    const engine = makeEngine(world);
-    const action = makeAction(engine);
-    const domBinding = makeDomBinding(action);
-    const presenter = makePresenter(domBinding);
+      buildMap(world); // uhh.. this goes in the presenter?
+      presenter.bindEvents();
+      if (_debug.skipIntro) {
+        action.wakeUp();
+      }
 
-    buildMap(world); // uhh.. this goes in the presenter?
-    presenter.bindEvents();
-    if (_debug.skipIntro) {
-      action.wakeUp();
+      parseTime('14:40');
+
     }
+
+
     //- engine.startIntro();
 
 
@@ -703,3 +453,28 @@ body
         .reduce((last, next) => last.then(next), Promise.resolve());
     }
 
+    //- parseTime('14:30');
+    // Bleh, just kluding this for now
+    function parseTime(timeString, startTime = engine.clock.start) {
+      const dateString =
+        new Date(engine.clock.start).toLocaleDateString("en-US", {timeZone: "America/Los_Angeles"});
+      let [hh, mm] = timeString.split(':');
+      let dayOffset = 0;
+      //- hh = +hh, mm = +mm;
+      if (+hh > 24 || (+hh === 24 && +mm > 0)) {
+        hh = (+hh - 24).toFixed().padStart(2, '0');
+        dayOffset = 8.64e7;
+      }
+      return Date.parse(`${dateString} ${hh}:${mm}:00 PDT`) + dayOffset;
+    }
+
+    function getWorld(yml) {
+      return fetch(yml)
+        .then(r => r.text())
+        .then(txt => {
+          return jsyaml.load(
+            txt,
+          );
+
+        })
+    }

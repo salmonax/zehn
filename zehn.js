@@ -1,4 +1,4 @@
-<head><script src="/js-yaml.min.js"></script><link rel="stylesheet" href="main.css"/></head><body><div class="status"><div class="location"></div><div class="time"></div></div><div class="description"></div><div class="chum-dex"><div class="chum-bar"><div class="icon">Quint</div><div class="icon">Fremp</div><div class="icon">Dee</div></div><div class="side"></div><div class="body"></div></div><div class="zehn"><div class="backdrop"></div><div class="logo"></div><div class="awaken"><div class="comment"></div><div class="link"></div></div><div class="white"></div><div class="go">PLAY</div></div><div class="halftone"></div><div class="scanlines"></div><div class="map"></div><script>const $ = document.querySelector.bind(document);
+const $ = document.querySelector.bind(document);
 const $$ = (...args) => [].slice.apply(document.querySelectorAll(...args));
 const div = (selector, style, text) => {
   const _div = document.createElement('div');
@@ -434,4 +434,4 @@ function getWorld(yml) {
       );
 
     })
-}</script></body>
+}
