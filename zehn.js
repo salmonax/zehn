@@ -35,6 +35,8 @@ const ascii = {
 
 const audio = {
   fx: {
+    dexGet: new Audio('/imrcv.ogg'),
+    dexSend: new Audio('/imsend.ogg'),
     telemetry: new Audio('/type3.mp3'),
     crt: new Audio('/crt.mp3'),
   },
@@ -50,7 +52,7 @@ const audio = {
 };
 
 const _debug = {
-  skipIntro: false,
+  skipIntro: true,
 };
 
 const makePresenter = (binding) => ({
@@ -144,7 +146,25 @@ const makeEngine = (world) => ({ // just following convention
       alert('GAME OVER');
       this.stopLoop();
     }
-    // Update status menu
+
+    const { dex } = world;
+    Object.keys(dex).forEach(chum => {
+      Object.keys(dex[chum]).forEach(time => {
+        const texts = dex[chum][time];
+        if (parseTime(time) <= gameTime && !texts._triggered) {
+          const startSecs = Math.random()*40;
+          pester(chum, texts, (text, i, d) => {
+            audio.fx.dexGet.play();
+            const secs = Math.min(59,((startSecs + i*d/25)|0)).toFixed().padStart(2, '0');
+            const msg = `${time}:${secs} ${cap(chum)}: ${text}`;
+            console.log(msg);
+          });
+          // console.log(message);
+          texts._triggered = true;
+        }
+      });
+    });
+    // Update status menu±
     $('.time').innerText = (new Date(gameTime)).toLocaleString();
     //
   },
@@ -210,7 +230,7 @@ const makeDomBinding = (action) => ({
 
 init();
 async function init() {
-  const world = window.world = await getWorld('game.yml');
+  const world = window.world = await fetchWorld('game.yml');
   const engine = window.engine =  makeEngine(world);
   const action = window.action =  makeAction(engine);
   const domBinding = window.domBinding =  makeDomBinding(action);
@@ -291,6 +311,10 @@ function buildMap(world, $root = $('.map')) {
   }
 }
 
+function cap(txt) {
+  return txt[0].toUpperCase() + txt.substr(1);
+}
+
 function type(text, cb = console.log, delay = 200, slack = 100) {
   clearInterval(type.interval);
   return text.split('')
@@ -301,6 +325,22 @@ function type(text, cb = console.log, delay = 200, slack = 100) {
       }),
     )
     .reduce((last, next) => last.then(next), Promise.resolve());
+}
+
+// DRY this with type function
+function pester(chum, texts, cb = console.log, delay = 500, slack = 500) {
+  if (!pester.queue) pester.queue = {};
+  if (!pester.queue[chum]) pester.queue[chum] = Promise.resolve();
+  pester.queue[chum] = pester.queue[chum]
+    .then(_ => texts
+      .map((n, i) => _ =>
+        new Promise(r => {
+          const adjustedDelay = delay + Math.round((Math.random()*slack*2)-slack);
+          setTimeout(_ => r(cb(n, i, adjustedDelay)), adjustedDelay);
+        }),
+      )
+      .reduce((last, next) => last.then(next), Promise.resolve()),
+    );
 }
 
 // Bleh, just kludging this for now
@@ -317,6 +357,6 @@ function parseTime(timeString, startTime = engine.clock.start) {
   return Date.parse(`${dateString} ${hh}:${mm}:00 PDT`) + dayOffset;
 }
 
-function getWorld(yml) {
+function fetchWorld(yml) {
   return fetch(yml).then(r => r.text()).then(jsyaml.load);
 }
