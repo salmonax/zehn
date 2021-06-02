@@ -86,6 +86,29 @@ const makeEngine = (world) => ({ // just following convention
       );
     }
   },
+  // Hrm, definitely shouldn't be handling DOM business here:
+  dex: {
+    _texts: {},
+    _selectedChum: null,
+    selectChum(chumName) {
+      this._selectedChum = chumName;
+    },
+    add(chum, msg) {
+      const texts = this._texts;
+      if (!texts[chum]) texts[chum] = [];
+      texts[chum].push(msg);
+      this.render(chum);
+    },
+    _toHTML({ label, text }) {
+      return `<div class="dex-msg"><span class="in">${label}</span> ${text}</div>`;
+    },
+    render(chum, rootSelector = '.chum-dex .chums') {
+      // This is append only and shouldn't be re-rendered from scratch every time. blargh.
+      const html = this._texts[chum].map(this._toHTML).join(' ');
+      const selector = `${rootSelector} .${chum}`; // NOOO!!!
+      $(selector).innerHTML = html;
+    },
+  },
   get gameTime() {
     return this.clock.getGameTime(this._elapsed);
   },
@@ -151,15 +174,20 @@ const makeEngine = (world) => ({ // just following convention
     Object.keys(dex).forEach(chum => {
       Object.keys(dex[chum]).forEach(time => {
         const texts = dex[chum][time];
-        if (parseTime(time) <= gameTime && !texts._triggered) {
+        const parsedMsgTime = parseTime(time);
+        if (parsedMsgTime <= gameTime && !texts._triggered) {
           const startSecs = Math.random()*40;
+          let delay, slack; // leave undefined, use function default by default
+          const isBeforeGame = parsedMsgTime < this.clock.start;
+          if (isBeforeGame) delay = slack = 0;
           pester(chum, texts, (text, i, d) => {
-            audio.fx.dexGet.play();
-            const secs = Math.min(59,((startSecs + i*d/25)|0)).toFixed().padStart(2, '0');
-            const msg = `${time}:${secs} ${cap(chum)}: ${text}`;
-            console.log(msg);
-          });
-          // console.log(message);
+            if (!isBeforeGame) audio.fx.dexGet.play();
+            const secs = Math.min(59,((startSecs + i*d/25)|0)).toFixed().padStart(2, '0'); // formatting
+            // bleh, move this into the dex:
+            const label = `${time}:${secs} ${cap(chum)}:`;
+            // console.log(msg);
+            this.dex.add(chum, { label, text });
+          }, delay, slack);
           texts._triggered = true;
         }
       });
@@ -196,10 +224,12 @@ const makeEngine = (world) => ({ // just following convention
   initGame() {
     $('.chum-dex .side').innerText = ascii.chum;
     this.startLoop();
-    this.loadLoc('apartment');
+    this.loadLoc('bistro');
+    $('.status .location').innerText = 'bistro';
   }
 });
 
+// This is glue between engine, dom, and input methods
 const makeAction = (engine) => ({
   start: _ => engine.startLoop(),
   stop: _ => engine.stopLoop(),
@@ -213,14 +243,23 @@ const makeAction = (engine) => ({
     $('.go').classList.add('off');
     setTimeout(() => engine.startIntro(), 450);
   },
-  changeLocation: e => {
-    const clickedLoc = e.target.innerText.split('\n')[0];
+  selectChum: ({ target }) => {
+    console.log('fucoisdosia');
+    const chumName = target.innerText.toLowerCase(); // TODO: switch to class, make chum-bar creation programmatic
+    $$('.chum-dex .body .chums > *').forEach($el => {
+      engine.dex.selectChum(chumName);
+      $el.classList[$el.classList.contains(chumName) ? 'add' : 'remove']('on');
+    });
+  },
+  changeLocation: (e, loc) => {
+    const clickedLoc = loc || e.target.innerText.split('\n')[0];
     engine.loadLoc(clickedLoc);
     $('.status .location').innerText = clickedLoc;
   },
 });
 
 const makeDomBinding = (action) => ({
+  '.chum-bar .icon': action.selectChum,
   '.start': action.start,
   '.stop': action.stop,
   '.locale': action.changeLocation,
@@ -228,7 +267,6 @@ const makeDomBinding = (action) => ({
   '.go': action.go,
 });
 
-init();
 async function init() {
   const world = window.world = await fetchWorld('game.yml');
   const engine = window.engine =  makeEngine(world);
@@ -238,10 +276,7 @@ async function init() {
 
   buildMap(world); // uhh.. this goes in the presenter?
   presenter.bindEvents();
-  if (_debug.skipIntro) {
-    action.wakeUp();
-  }
-
+  if (_debug.skipIntro) action.wakeUp();
   parseTime('14:40');
 
 }
