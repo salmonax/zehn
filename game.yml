@@ -1,19 +1,72 @@
 revealed:
   apartment: true
   street: true
-chumdex:
-  12:30:
-    - Hey Pluff, waaasaaap?
-    - We still on for 7:30pm?
-  16:23:
-    - Pfft, what'd you do, forget to wake up again?
-    - Well, whatever, I'll be over at Vesuvio's like we said.
-  16:41:
-    - PLUFF! RESPOND, NOW.
+dex:
+  quint:
+    # This should be relative to arriving at the Bistro for the first time
+    15:55:
+      - Mmm, hey Pluff. There's something we should talk about.
+      - I was going to talk to you in the cafe, but I think it's better if we talk outside.
+    15:58:
+      - Your friend Fremp, I think she's getting a little too close to something big.
+  bee:
+    16:45:
+      - Thanks for coming over Pluff, I really needed the company. ;)
+  fremp:
+    12:30:
+      - Hey Pluff, waaasaaap?
+      - We still on for 7:30pm?
+    15:23:
+      - Pfft, what'd you do, forget to wake up again?
+    15:41:
+      - Well, whatever, I'll be over at Vesuvio's like we said.
+    15:50:
+      - PLUFF! RESPOND, NOW.
+    16:01:
+      - ARGH, I don't know what I'm going to DO WITH YOU
+      - I'm just going to keep saying stuff until you respond.
+      - Blah blah blah la la la la
+      - la la la
+    16:10:
+      - arwoeiuqrpweoruiqwepoiruqweproiweu rpoqwieur wpeoiruw
+      - s!@#!@#!@#!@
+    16:15:
+      - EWORWIEROIWEORIWEORI EEEOOORRR EEEEYOOO
+      - FINE. I'm done.
+      - I'm bored.
+    16:20:
+      - So... booooooorrred.
+    19:35:
+      - Well... I'm at Vesuvio's, and you're NOT.
+characters:
+  fremp:
+    description: >
+      Fremp is easily excitable, imaginative, and benefits from a combination of reasonableness and contented reassurance. She can be overgoaded into impulsiveness or melancholy
+    humors:
+      choleric: 9
+      melancholic: 8
+      phlegmatic: 3
+      sanguine: 3
+  quint:
+    description: >
+      Quint is an easygoing pragmatist, extremely charismatic and barely concealing an intense shrewdness. It would be unusual to see him unsettled.
+    humors:
+      choleric: 5
+      melancholic: 4
+      phlegmatic: 7
+      sanguine: 9
+  bee:
+    description: >
+      Bee is quietly wound up most of the time and responds very poorly to curtness or crappiness.
+    humors:
+      choleric: 8
+      melancholic: 10
+      phlegmatic: 9
+      sanguine: 3
+
 orientation:
   bathroom:
     s: apartment
-    n: secret bathroom
   apartment:
     s: street
   street:
@@ -32,14 +85,11 @@ description:
     always: >
       Vesuvio's is directly across the street from where you live, so you come here a lot.
     clock:
-      19:55:
-        room: >
+      19:55: >
           Fremp comes in and peers around as if looking for someone. As soon as she sees you, she waves and sits down across from you.
-      22:30:
-        room: >
+      22:30: >
           Quint comes out of the kitchen and says, "Closing time! Try to finish up by 11pm so me and the cook can go home."
-      23:00:
-        room: >
+      23:00: >
           "All right, everybody," you hear Quint announce, "you don't have to go home, but you can't stay here!"
   apartment:
     first: >

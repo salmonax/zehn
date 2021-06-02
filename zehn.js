@@ -35,6 +35,8 @@ const ascii = {
 
 const audio = {
   fx: {
+    dexGet: new Audio('/imrcv.ogg'),
+    dexSend: new Audio('/imsend.ogg'),
     telemetry: new Audio('/type3.mp3'),
     crt: new Audio('/crt.mp3'),
   },
@@ -50,7 +52,7 @@ const audio = {
 };
 
 const _debug = {
-  skipIntro: false,
+  skipIntro: true,
 };
 
 const makePresenter = (binding) => ({
@@ -83,6 +85,29 @@ const makeEngine = (world) => ({ // just following convention
         this.start + (this.end - this.start)/1000/60/this.durationInMinutes*elapsed,
       );
     }
+  },
+  // Hrm, definitely shouldn't be handling DOM business here:
+  dex: {
+    _texts: {},
+    _selectedChum: null,
+    selectChum(chumName) {
+      this._selectedChum = chumName;
+    },
+    add(chum, msg) {
+      const texts = this._texts;
+      if (!texts[chum]) texts[chum] = [];
+      texts[chum].push(msg);
+      this.render(chum);
+    },
+    _toHTML({ label, text }) {
+      return `<div class="dex-msg"><span class="in">${label}</span> ${text}</div>`;
+    },
+    render(chum, rootSelector = '.chum-dex .chums') {
+      // This is append only and shouldn't be re-rendered from scratch every time. blargh.
+      const html = this._texts[chum].map(this._toHTML).join(' ');
+      const selector = `${rootSelector} .${chum}`; // NOOO!!!
+      $(selector).innerHTML = html;
+    },
   },
   get gameTime() {
     return this.clock.getGameTime(this._elapsed);
@@ -144,7 +169,30 @@ const makeEngine = (world) => ({ // just following convention
       alert('GAME OVER');
       this.stopLoop();
     }
-    // Update status menu
+
+    const { dex } = world;
+    Object.keys(dex).forEach(chum => {
+      Object.keys(dex[chum]).forEach(time => {
+        const texts = dex[chum][time];
+        const parsedMsgTime = parseTime(time);
+        if (parsedMsgTime <= gameTime && !texts._triggered) {
+          const startSecs = Math.random()*40;
+          let delay, slack; // leave undefined, use function default by default
+          const isBeforeGame = parsedMsgTime < this.clock.start;
+          if (isBeforeGame) delay = slack = 0;
+          pester(chum, texts, (text, i, d) => {
+            if (!isBeforeGame) audio.fx.dexGet.play();
+            const secs = Math.min(59,((startSecs + i*d/25)|0)).toFixed().padStart(2, '0'); // formatting
+            // bleh, move this into the dex:
+            const label = `${time}:${secs} ${cap(chum)}:`;
+            // console.log(msg);
+            this.dex.add(chum, { label, text });
+          }, delay, slack);
+          texts._triggered = true;
+        }
+      });
+    });
+    // Update status menu±
     $('.time').innerText = (new Date(gameTime)).toLocaleString();
     //
   },
@@ -176,10 +224,12 @@ const makeEngine = (world) => ({ // just following convention
   initGame() {
     $('.chum-dex .side').innerText = ascii.chum;
     this.startLoop();
-    this.loadLoc('apartment');
+    this.loadLoc('bistro');
+    $('.status .location').innerText = 'bistro';
   }
 });
 
+// This is glue between engine, dom, and input methods
 const makeAction = (engine) => ({
   start: _ => engine.startLoop(),
   stop: _ => engine.stopLoop(),
@@ -193,14 +243,23 @@ const makeAction = (engine) => ({
     $('.go').classList.add('off');
     setTimeout(() => engine.startIntro(), 450);
   },
-  changeLocation: e => {
-    const clickedLoc = e.target.innerText.split('\n')[0];
+  selectChum: ({ target }) => {
+    console.log('fucoisdosia');
+    const chumName = target.innerText.toLowerCase(); // TODO: switch to class, make chum-bar creation programmatic
+    $$('.chum-dex .body .chums > *').forEach($el => {
+      engine.dex.selectChum(chumName);
+      $el.classList[$el.classList.contains(chumName) ? 'add' : 'remove']('on');
+    });
+  },
+  changeLocation: (e, loc) => {
+    const clickedLoc = loc || e.target.innerText.split('\n')[0];
     engine.loadLoc(clickedLoc);
     $('.status .location').innerText = clickedLoc;
   },
 });
 
 const makeDomBinding = (action) => ({
+  '.chum-bar .icon': action.selectChum,
   '.start': action.start,
   '.stop': action.stop,
   '.locale': action.changeLocation,
@@ -208,9 +267,8 @@ const makeDomBinding = (action) => ({
   '.go': action.go,
 });
 
-init();
 async function init() {
-  const world = window.world = await getWorld('game.yml');
+  const world = window.world = await fetchWorld('game.yml');
   const engine = window.engine =  makeEngine(world);
   const action = window.action =  makeAction(engine);
   const domBinding = window.domBinding =  makeDomBinding(action);
@@ -218,10 +276,7 @@ async function init() {
 
   buildMap(world); // uhh.. this goes in the presenter?
   presenter.bindEvents();
-  if (_debug.skipIntro) {
-    action.wakeUp();
-  }
-
+  if (_debug.skipIntro) action.wakeUp();
   parseTime('14:40');
 
 }
@@ -291,6 +346,10 @@ function buildMap(world, $root = $('.map')) {
   }
 }
 
+function cap(txt) {
+  return txt[0].toUpperCase() + txt.substr(1);
+}
+
 function type(text, cb = console.log, delay = 200, slack = 100) {
   clearInterval(type.interval);
   return text.split('')
@@ -301,6 +360,22 @@ function type(text, cb = console.log, delay = 200, slack = 100) {
       }),
     )
     .reduce((last, next) => last.then(next), Promise.resolve());
+}
+
+// DRY this with type function
+function pester(chum, texts, cb = console.log, delay = 500, slack = 500) {
+  if (!pester.queue) pester.queue = {};
+  if (!pester.queue[chum]) pester.queue[chum] = Promise.resolve();
+  pester.queue[chum] = pester.queue[chum]
+    .then(_ => texts
+      .map((n, i) => _ =>
+        new Promise(r => {
+          const adjustedDelay = delay + Math.round((Math.random()*slack*2)-slack);
+          setTimeout(_ => r(cb(n, i, adjustedDelay)), adjustedDelay);
+        }),
+      )
+      .reduce((last, next) => last.then(next), Promise.resolve()),
+    );
 }
 
 // Bleh, just kludging this for now
@@ -317,6 +392,6 @@ function parseTime(timeString, startTime = engine.clock.start) {
   return Date.parse(`${dateString} ${hh}:${mm}:00 PDT`) + dayOffset;
 }
 
-function getWorld(yml) {
+function fetchWorld(yml) {
   return fetch(yml).then(r => r.text()).then(jsyaml.load);
 }

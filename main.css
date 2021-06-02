@@ -315,8 +315,53 @@ body * {
   color: #333;
   font-weight: 900;
   display: flex;
+  flex-direction: column;
+}
+.icon:after .unread {
+  content: '*';
+}
+.chum-dex .body {
+  display: flex;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  /* background: red; */
+}
+.left {
+  display: flex;
+  width: 100%;
+  /* background: blue; */
+  flex-direction: column;
+}
+.chums {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+.respond {
+  /* background: blue; */
+  bottom: 0px;
+  height: 23%;
+}
+.chum-dex .body .chums > * {
+  height: 80%;
+  /* background: blue; */
+  overflow: auto;
+  transition: opacity 100ms;
+  /* word-break: break-all; */
+  position: absolute;
+  opacity: 0;
+  pointer-eventS: none;
+  padding: 6px;
+  margin-right: 22px;
+  border-bottom: 2px solid #555;
+}
+.chum-dex .body .chums > .on {
+  opacity: 1;
+  pointer-events: unset;
 }
 .chum-dex .side {
+  user-select: none;
   //- font-family: monospace;
   margin-left: auto;
   font-size: 24;
@@ -327,16 +372,28 @@ body * {
   color: #8a8;
   line-height: 35px;
 }
+.dex-msg {
+  font-size: 14px;
+  margin: 4px 0px;
+}
+.dex-msg > .in {
+  color: #50f;
+}
 .chum-bar {
   width: 100%;
   display: flex;
   margin-right: 2px;
 }
 .chum-bar .icon {
+  user-select: none;
+  cursor: pointer;
   flex-grow: 1;
   margin: 1px;
   padding: 6px 10px;
   height: 30px;
   background: #335;
   color: #8a8;
+}
+.chum-bar .icon:hover {
+  background: #445;
 }
