@@ -1,0 +1,37 @@
+{
+  "name": "zehn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "zehn.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel src/index.pug",
+    "devopen": "parcel build src/index.pug",
+    "prod": "parcel build src/index.pug",
+    "start": "npm run devopen"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/salmonax/zehn.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/salmonax/zehn/issues"
+  },
+  "homepage": "https://github.com/salmonax/zehn#readme",
+  "devDependencies": {
+    "parcel-plugin-static-files-copy": "^2.6.0",
+    "pug": "^3.0.2"
+  },
+  "dependencies": {
+    "lib": "^4.3.3"
+  },
+  "staticFiles": {
+    "watcherGlob": "/**/*.yml"
+  },
+  "browserslist": [
+    "last 1 Chrome version"
+  ]
+}
