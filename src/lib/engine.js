@@ -1,8 +1,12 @@
-import _audio from './audio';
-import { ascii } from './constants';
-import { parseTime, pester, cap, type } from './utils';
+/*
+  The engine shouldn't need to access audio or do *any* DOM business. It's responsibilities are as follows:
+  1. Serve as the main broker between the game file, the realtime clock, and the runtime
+  2. Dispatch events, for now mainly to the presenter.
+ */
+import { bus } from './utils';
+const { emit } = bus;
 
-const makeEngine = (world, audio = _audio) => ({ // just following convention
+const makeEngine = (world) => ({ // just following convention
   world,
   _startTime: null,
   _elapsed: 0,
@@ -19,31 +23,6 @@ const makeEngine = (world, audio = _audio) => ({ // just following convention
     }
   },
   // Hrm, definitely shouldn't be handling DOM business here:
-  dex: {
-    _texts: {},
-    _selectedChum: null,
-    selectChum(chumName) {
-      this._selectedChum = chumName;
-    },
-    add(chum, msg) {
-      const texts = this._texts;
-      if (!texts[chum]) texts[chum] = [];
-      texts[chum].push(msg);
-      this.render(chum);
-    },
-    _toHTML({ label, text }) {
-      return `<div class="dex-msg"><span class="in">${label}</span> ${text}</div>`;
-    },
-    render(chum, rootSelector = '.chum-dex .chums') {
-      // This is append only and shouldn't be re-rendered from scratch every time. blargh.
-      const html = this._texts[chum].map(this._toHTML).join(' ');
-      const selector = `${rootSelector} .${chum}`; // NOOO!!!
-      console.log(selector)
-      if ($(selector) === null) console.error(selector)
-      $(selector).innerHTML = html;
-      $(selector).scrollTo({ top: 100, behavior: 'smooth' });
-    },
-  },
   get gameTime() {
     return this.clock.getGameTime(this._elapsed);
   },
@@ -63,22 +42,7 @@ const makeEngine = (world, audio = _audio) => ({ // just following convention
         room :
         (room._visitCount === 1 ? (room.first ? trimAndSpace(room.first) + '\n\n' : '') : '') + trimAndSpace(room.always));
 
-    $('.description').innerText = '';
-    audio.fx.telemetry.play();
-
-    const lastRoomMusic = audio.music[lastLocName];
-    const roomMusic = audio.music[locName];
-    lastRoomMusic && lastRoomMusic.pause();
-    if (roomMusic) {
-      roomMusic.currentTime = 0;
-      roomMusic.play();
-    }
-
-    type(description, c => {
-      audio.fx.telemetry.currentTime = 0;
-      $('.description').innerText += c;
-    }, 10, 50);
-
+    emit('room:enter', locName, lastLocName, description);
     this._playerLoc = locName;
   },
   startLoop() {
@@ -105,64 +69,8 @@ const makeEngine = (world, audio = _audio) => ({ // just following convention
       alert('GAME OVER');
       this.stopLoop();
     }
-
-    const { dex } = world;
-    Object.keys(dex).forEach(chum => {
-      Object.keys(dex[chum]).forEach(time => {
-        const texts = dex[chum][time];
-        const parsedMsgTime = parseTime(time);
-        if (parsedMsgTime <= gameTime && !texts._triggered) {
-          const startSecs = Math.random()*40;
-          let delay, slack; // leave undefined, use function default by default
-          const isBeforeGame = parsedMsgTime < this.clock.start;
-          if (isBeforeGame) delay = slack = 0;
-          pester(chum, texts, (text, i, d) => {
-            if (!isBeforeGame) audio.fx.dexGet.play();
-            const secs = Math.min(59,((startSecs + i*d/25)|0)).toFixed().padStart(2, '0'); // formatting
-            // bleh, move this into the dex:
-            const label = `${time}:${secs} ${cap(chum)}:`;
-            // console.log(msg);
-            this.dex.add(chum, { label, text });
-          }, delay, slack);
-          texts._triggered = true;
-        }
-      });
-    });
-    // Update status menu±
-    $('.time').innerText = (new Date(gameTime)).toLocaleString();
-    //
+    emit('clock:tick', gameTime, clock.start, world); // let things react to this
   },
-  startIntro() {
-    //- audio.music['office building'].play();
-    $('.zehn .logo').innerText = ascii.zehn;
-    $('.zehn .backdrop').innerText = `ZEHN is a transistorpunk adventure set in 2032 that takes ZEHN minutes to complete or it resets the universe was ZEHN is ZEHN and will always be ZEHN made the suns ZEHN made the worlds ZEHN created the lives and the places they inhabit ZEHN moves them here ZEHN put them there they go as ZEHN says then do as ZEHN tells them ZEHM is and ZEHN shall always be `.repeat(100);
-    audio.music.zehn.play();
-
-    setTimeout(() => {
-      audio.fx.telemetry.play();
-      type(`ARGH, STOP DREAMING ABOUT THIS KEYGEN INTRO STUFF!`, c => {
-        audio.fx.telemetry.currentTime = 0;
-        $('.awaken .comment').innerText += c;
-      }, 10, 50)
-        .then(_ => {
-          type('WAKE UP!', c => {
-            audio.fx.telemetry.currentTime = 0;
-            $('.awaken .link').innerText += c;
-          }, 10, 50);
-        });
-    }, 6000);
-
-  },
-  stopIntro() {
-    audio.music.zehn.pause();
-    $('.zehn').classList.add('hidden');
-  },
-  initGame() {
-    $('.chum-dex .side').innerText = ascii.chum;
-    this.startLoop();
-    this.loadLoc('bistro');
-    $('.status .location').innerText = 'bistro';
-  }
 });
 
 export default makeEngine;

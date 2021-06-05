@@ -317,6 +317,7 @@ body * {
 }
 .left {
   display: flex;
+  position: relative;
   width: 100%;
   /* background: blue; */
   flex-direction: column;
@@ -333,6 +334,7 @@ body * {
 }
 .chum-dex .body .chums > * {
   height: 80%;
+  width: 100%;
   /* background: blue; */
   overflow: auto;
   transition: opacity 100ms;
