@@ -50,3 +50,15 @@ export function type(text, cb = console.log, delay = 200, slack = 100) {
 export function fetchWorld(yml) {
     return fetch(yml).then(r => r.text()).then(window.jsyaml.load);
   }
+
+
+export const bus = {
+  emit(eventName, ...detail) {
+    document.dispatchEvent(new CustomEvent(eventName, { detail }));
+  },
+  on(eventName, ...cbs) {
+    cbs.forEach(cb => {
+      document.addEventListener(eventName, e => cb(...e.detail));
+    });
+  },
+};
