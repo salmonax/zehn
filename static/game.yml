@@ -63,7 +63,6 @@ characters:
       melancholic: 10
       phlegmatic: 9
       sanguine: 3
-
 orientation:
   bathroom:
     s: apartment
@@ -81,16 +80,27 @@ description:
   any: There's sadly nothing much of note about this place.
   bistro:
     first: >
-      As you come in, you see Quint counting the register, and he throws you an odd glance. There's definitely something on his mind.
+      As you come in, you see Quint counting the register, and he throws you a worried glance. There's definitely something on his mind.
     always: >
       Vesuvio's is directly across the street from where you live, so you come here a lot.
     clock:
+      15:35: >
+          The game developer enters the room and looks at you quizzically, as if to say that it would be impossible for you to be in this room this early unless you were cheating.
+      15:44: >
+          Or perhaps, the game developer thinks, you're both the same person!
       19:55: >
           Fremp comes in and peers around as if looking for someone. As soon as she sees you, she waves and sits down across from you.
       22:30: >
           Quint comes out of the kitchen and says, "Closing time! Try to finish up by 11pm so me and the cook can go home."
       23:00: >
           "All right, everybody," you hear Quint announce, "you don't have to go home, but you can't stay here!"
+    content:
+      people:
+        quint: >
+          You try to talk to Quint, but he waves you away.
+      things:
+        napkin: >
+          What's up with this napkin, it looks ruffled, almost like it was used.
   apartment:
     first: >
       Welp, that was fun. Back to your life, you guess.
@@ -102,6 +112,15 @@ description:
       Also, it's after 4:30pm. And you can't remember falling to sleep. In a brief panic, you try to remember who you are, and... you do. Fantastic.
     always: >
       So this is your pad, on the 23rd floor of a boring medium-rise. Sigh. Is it even worth living in a city this big anymore?
+    content:
+      things:
+        bed: >
+          Your bed is king-size and takes up the entire room and most of your tiny studio. Don't ask.
+
+          Wait, who are you talking to?
+        coat: >
+          It's your trusty coat.
+
   street:
     first: >
       Maybe it isn't worth it.
@@ -109,6 +128,10 @@ description:
       Just look at this street, mostly awash in the shadows of the surrounding buildings, dirty sidewalks, obnoxious traffic. That poor guy who sleeps face down on the sidewalk.
     always: >
       There's an office building at the end of the street to the east; to the west is that conspicuous storybook house where Fremp lives.
+    content:
+      people:
+        "facedown guy": >
+          Poor guy. His name is Boff, by the way.
   office building:
     first: >
       What an imposing edifice. This building creeps you out so much that you always avoid passing by it.

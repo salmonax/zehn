@@ -23,6 +23,12 @@ const makeAction = (engine, presenter) => ({
       engine.loadLoc(clickedLoc);
       $('.status .location').innerText = clickedLoc;
     },
+    engageContent: (e) => {
+      const loc = engine.runtime.player.location;
+      const label = e.target.innerText;
+      const type = e.target.classList.contains('person') ? 'people' : 'things';
+      presenter.room.engageContent(loc, label, type);
+    },
   });
 
 export default makeAction;

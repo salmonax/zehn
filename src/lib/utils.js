@@ -35,16 +35,19 @@ export function cap(txt) {
   return txt[0].toUpperCase() + txt.substr(1);
 }
 
-export function type(text, cb = console.log, delay = 200, slack = 100) {
-  clearInterval(type.interval);
-  return text.split('')
+// This needs to allow styling somehow
+export function type(text, cb = console.log, forceImmediate = true, delay = 200, slack = 100) {
+  if (forceImmediate) clearInterval(type.interval);
+  const starterPromise = (forceImmediate || !type.promise) ? Promise.resolve() : type.promise;
+  type.promise = text.split('')
     .map((n, i) => _ =>
       new Promise(r => {
         const adjustedDelay = delay + Math.round((Math.random()*slack*2)-slack);
         type.interval = setTimeout(_ => r(cb(n, i, adjustedDelay)), adjustedDelay);
       }),
     )
-    .reduce((last, next) => last.then(next), Promise.resolve());
+    .reduce((last, next) => last.then(next), starterPromise);
+  return type.promise;
 }
 
 export function fetchWorld(yml) {

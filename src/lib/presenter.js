@@ -24,27 +24,6 @@ const div = (selector, styleOrChild, textOrChild, ...children) => {
   return _div;
 };
 
-
-// const d = div;
-// d('.chum-dex',
-//   d('.chum-bar',
-//     d('.icon.quit', null, 'Quint'),
-//     d('.icon.fremp', null, 'Fremp'),
-//     d('.icon.bee', null, 'Bee'),
-//   ),
-//   d('.body',
-//     d('.left',
-//       d('.chums',
-//         d('.quint'),
-//         d(',fremp'),
-//         d('.bee'),
-//       ),
-//       d('.respond'),
-//     ),
-//     d('.side'),
-//   ),
-// )
-
 function pug(strings, ...values) {
   let divArgs = [];
   const nest = [];
@@ -138,6 +117,8 @@ export const makeDomBinding = (action) => ({
   '.locale': action.changeLocation,
   '.awaken .link': action.wakeUp,
   '.go': action.go,
+  '.people': action.engageContent,
+  '.things': action.engageContent,
 });
 
 const makePresenter = () => ({
@@ -213,18 +194,18 @@ const makePresenter = () => ({
       });
     }
   },
-  dex: {
-    _texts: {},
-    _selectedChum: null,
+  dex: new (class DexPresenter {
+    _texts = {}
+    _selectedChum = null
     _addText(chum, msg) {
       const texts = this._texts;
       if (!texts[chum]) texts[chum] = [];
       texts[chum].push(msg);
       this._render(chum);
-    },
+    }
     _toHTML({ label, text }) {
       return `<div class="dex-msg"><span class="in">${label}</span> ${text}</div>`;
-    },
+    }
     _render(chum, rootSelector = '.chum-dex .chums') {
       // This is append only and shouldn't be re-rendered from scratch every time. blargh.
       const html = this._texts[chum].map(this._toHTML).join(' ');
@@ -232,11 +213,12 @@ const makePresenter = () => ({
       if ($(selector) === null) console.error(selector)
       $(selector).innerHTML = html;
       $(selector).scrollTo({ top: 1000, behavior: 'smooth' });
-    },
+    }
     selectChum(chumName) {
       this._selectedChum = chumName;
-    },
-    checkAndUpdate(gameTime, startTime, { dex: dexData }) {
+    }
+    handleCheckAndUpdate = (gameTime, startTime, { dex: dexData }) => {
+      // Argh! This should be in the engine.
       Object.keys(dexData).forEach(chum => {
         Object.keys(dexData[chum]).forEach(time => {
           const texts = dexData[chum][time];
@@ -258,19 +240,60 @@ const makePresenter = () => ({
           }
         });
       });
-    },
-  },
-  game: {
-    init(engine) {
-      $('.chum-dex .side').innerText = ascii.chum;
-      $('.status .location').innerText = 'bistro';
-      engine.startLoop();
-      engine.loadLoc('bistro');
-    },
-    updateClock(gameTime) {
-      $('.time').innerText = (new Date(gameTime)).toLocaleString();
-    },
-    enterRoom(locName, lastLocName, description) {
+    }
+  })(),
+  room: new (class RoomPresenter { // Don't worry folks; I'm a professional.
+    // Uhh... Some of these get called by action
+    // and some of them get called by engine-sent events.
+    // Weird.
+    // It's especially screwed up that the functions have random sigs that
+    // need to correspond to the payload of the emitted events.
+    addText(text, clear = false, forceImmediate = false) {
+      // text = text.trim();
+      console.log(text.replace('\n', '\\n'));
+      if (clear) {
+        $('.description').innerText = '';
+      } else {
+        text = '\n\n' + text;
+      }
+      audio.fx.telemetry.play();
+      // Could make an onStart callback, so that it clears WHEN it can start.
+      // Right now, clear = true and forceImmediate = false will clear the screen, but not the interval.
+      type(text, c => {
+        $('.description').innerText += c;
+        audio.fx.telemetry.currentTime = 0;
+      }, forceImmediate, 10, 50);
+    }
+    populateButtons(locName, world) {
+      const $people = $('.people');
+      const $things = $('.things');
+      $people.innerHTML = '';
+      $things.innerHTML = '';
+      const loc =  world.description[locName] || {};
+      const { people, things } = loc.content || {};
+      if (people) {
+        // TODO: people move, so this needs dealing with
+        Object.entries(people).forEach(([label, info]) => {
+          $people.appendChild(
+            div('person', null, label),
+          )
+        });
+      }
+      if (things) {
+        Object.entries(things).forEach(([label, info]) => {
+          $things.appendChild(
+            div('thing', null, label),
+          );
+        });
+      }
+
+    }
+    engageContent(loc, label, type) {
+      const text = world.description[loc].content[type][label];
+      this.addText(text, true, true);
+    }
+    // For the moment, I guess, I'll just use a "handle" naming convention
+    handleEnter = (locName, lastLocName, description) => {
       $('.description').innerText = '';
       audio.fx.telemetry.play();
 
@@ -281,11 +304,48 @@ const makePresenter = () => ({
         roomMusic.currentTime = 0;
         roomMusic.play();
       }
+      this.populateButtons(locName, world);
 
+      console.warn(description.replace('\n', '\\n'))
       type(description, c => {
         $('.description').innerText += c;
         audio.fx.telemetry.currentTime = 0;
-      }, 10, 50); // This is dumb.
+      }, true, 10, 50); // This is dumb.
+    }
+    // TODO: Move direct clock-checking to the engine:
+    handleCheckAndUpdate = (gameTime, startTime, world, runtime) => {
+      // Need to check characters here, as well
+      const { location, lastEntrance } = runtime.player; // TODO: this is null and shouldn't be.
+      const room = world.description[location];
+      if (room && room.clock) {
+        if (!room.clock._triggered) room.clock._triggered = {};
+        const { clock } = room;
+        Object.keys(clock).forEach(time => {
+          if (clock._triggered[time]) return;
+          const parsedEventTime = parseTime(time);
+          if (lastEntrance <= parsedEventTime && gameTime >= parsedEventTime) {
+            const { text, clear } = (typeof clock[time] === 'object') ?
+              clock[time] :
+              { text: clock[time], clear: false };
+            this.addText(text, clear);
+            clock._triggered[time] = true;
+          }
+        });
+      }
+    }
+  })(),
+  game: {
+    init(engine) {
+      const STARTING_ROOM = 'bistro';
+      $('.chum-dex .side').innerText = ascii.chum;
+      $('.status .location').innerText = STARTING_ROOM; // not here, holy shit.
+      engine.startLoop();
+      engine.loadLoc(STARTING_ROOM);
+    },
+    // Prefixing with "handle" to signal that it's called by the event bus,
+    // even though it doesn't need to be bound for context
+    handleUpdateClock(gameTime) {
+      $('.time').innerText = (new Date(gameTime)).toLocaleString();
     },
   },
   intro: {

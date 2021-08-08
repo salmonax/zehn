@@ -6,7 +6,7 @@ import { fetchWorld, bus } from './utils';
 
 const { on } = bus;
 
-const pipe = (...fs) => fs.reduce((a, f) => f(a), null);
+// const pipe = (...fs) => fs.reduce((a, f) => f(a), null);
 
 const _debug = {
   skipIntro: false,
@@ -21,14 +21,19 @@ async function init() {
   // buildMap(world); // uhh.. this goes in the presenter?
   presenter.buildMap(world);
   presenter.bindEvents(makeDomBinding(action));
+  on('clock:tick', presenter.game.handleUpdateClock);
+  on('clock:slowtick',
+    presenter.dex.handleCheckAndUpdate,
+    presenter.room.handleCheckAndUpdate,
+  );
 
-  on('clock:tick',
-    presenter.game.updateClock,
-    presenter.dex.checkAndUpdate.bind(presenter.dex),
-  );
-  on('room:enter',
-    presenter.game.enterRoom,
-  );
+  // on('dex:message',
+  //   presenter.dex.update,
+  // );
+  // on('room:message',
+  //   presenter.room.update,
+  // );
+  on('room:enter', presenter.room.handleEnter);
 
   if (_debug.skipIntro) action.wakeUp();
 }

@@ -79,13 +79,16 @@ body * {
   justify-content: center;
   display: flex;
 }
+.room-container {
+  margin: 20px;
+}
 .description {
   box-shadow: 6px 6px #0004, inset 0px 0px 0px 2px #0004;
   text-shadow: 3px 2px #0003;
   line-height: 18px;
   min-height: 250px;
   padding: 10px;
-  margin: 20px;
+  margin-bottom: 20px;
   background: linear-gradient(#aa3, #3aa);
   border: 3px solid white;
   white-space: pre-wrap;
@@ -373,7 +376,6 @@ body * {
   background: #333;
 }
 
-
 .chum-dex .side {
   user-select: none;
   margin-left: auto;
@@ -409,4 +411,32 @@ body * {
 }
 .chum-bar .icon:hover {
   background: #445;
+}
+
+.interactables, .interactables > * {
+  display: flex;
+}
+.interactables .things {
+  margin-left: auto;
+}
+.person, .thing {
+  user-select: none;
+  cursor: pointer;
+  box-shadow: 6px 6px #0004, inset 0px 0px 0px 2px #0004;
+  text-shadow: 3px 2px #0003;
+  border: 2px solid white;
+  padding: 10px;
+  margin: 0px 10px;
+}
+.person {
+  background: #939;
+}
+.thing {
+  background: #943;
+}
+.person:first-of-type {
+  margin-left: 0px;
+}
+.thing:last-of-type {
+  margin-right: 0px;
 }
