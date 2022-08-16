@@ -1,6 +1,6 @@
 import audio from './audio';
 import { ascii } from './constants';
-import { type, pester, bus, parseTime, cap } from './utils';
+import { type, pester, bus, parseTime, cap, dash } from './utils';
 
 const { on } = bus;
 
@@ -223,7 +223,6 @@ const makePresenter = () => ({
       }
     }
     selectChum(chumName) {
-      console.log(chumName);
       this._selectedChum = chumName;
       this._unreads[chumName] = 0;
     }
@@ -321,6 +320,8 @@ const makePresenter = () => ({
         $('.description').innerText += c;
         audio.fx.telemetry.currentTime = 0;
       }, true, 10, 50); // This is dumb.
+      lastLocName && $(`.map .locale.${dash(lastLocName)}`).classList.remove('on');
+      $(`.map .locale.${dash(locName)}`).classList.add('on');
     }
     // TODO: Move direct clock-checking to the engine:
     handleCheckAndUpdate = (gameTime, startTime, world, runtime) => {

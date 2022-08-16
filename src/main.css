@@ -73,6 +73,9 @@ body * {
   border: 1px solid white;
   box-sizing: border-box;
 }
+.map .locale.on {
+  background: #43a;
+}
 .row {
   margin-left: 190px;
   align-items: center;
@@ -397,7 +400,6 @@ body * {
 .chum-bar {
   width: 100%;
   display: flex;
-  flex-shrink: 0;
   margin-right: 2px;
 }
 .chum-bar .icon {

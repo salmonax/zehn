@@ -35,6 +35,10 @@ export function cap(txt) {
   return txt[0].toUpperCase() + txt.substr(1);
 }
 
+export function dash(txt) {
+  return txt.toLowerCase().replace(' ', '-');
+}
+
 // This needs to allow styling somehow
 export function type(text, cb = console.log, forceImmediate = true, delay = 200, slack = 100) {
   if (forceImmediate) clearInterval(type.interval);
