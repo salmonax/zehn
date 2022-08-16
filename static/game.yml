@@ -4,11 +4,16 @@ revealed:
 dex:
   quint:
     # This should be relative to arriving at the Bistro for the first time
+    15:30:
+      - Hi
+      - God you're sexy, has anybody ever told you that before?
+    15:40:
+      - Woops, wrong person, nm.
     15:55:
-      - Mmm, hey Pluff. There's something we should talk about.
-      - I was going to talk to you in the cafe, but I think it's better if we talk outside.
+      - Mmm, hey Pluff. There's something we should talk about
+      - I was going to talk to you in the cafe, but I think it's better if we talk outside
     15:58:
-      - Your friend Fremp, I think she's... starting to get the wrong kind of attention.
+      - Your friend Fremp, I think she's... starting to get the wrong kind of attention
   bee:
     16:45:
       - Thanks for coming over Pluff, I really needed the company. ;)
@@ -77,7 +82,7 @@ orientation:
   secret lab:
     s: dark basement
 description:
-  any: There's sadly nothing much of note about this place.
+  any: There's sadly nothing much of note about this place... yet.
   bistro:
     first: >
       As you come in, you see Quint counting the register, and he throws you a worried glance. There's definitely something on his mind.
@@ -111,7 +116,7 @@ description:
 
       Also, it's after 4:30pm. And you can't remember falling to sleep. In a brief panic, you try to remember who you are, and... you do. Fantastic.
     always: >
-      So this is your pad, on the 23rd floor of a boring medium-rise. Sigh. Is it even worth living in a city this big anymore?
+      So this is your pad, on the 23rd floor of a boring high-rise. Sigh. Is it even worth living in a city this big anymore?
     content:
       things:
         bed: >

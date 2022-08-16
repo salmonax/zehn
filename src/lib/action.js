@@ -12,10 +12,16 @@ const makeAction = (engine, presenter) => ({
       setTimeout(() => presenter.intro.start(), 450);
     },
     selectChum: ({ target }) => {
-      const chumName = target.innerText.toLowerCase(); // TODO: switch to class, make chum-bar creation programmatic
+      const chumFromText = target.innerText.replace(/[^a-z]/gi,'');
+      const chumName = chumFromText.toLowerCase(); // TODO: switch to class, make chum-bar creation programmatic
       $$('.chum-dex .body .chums > *').forEach($el => {
         presenter.dex.selectChum(chumName);
         $el.classList[$el.classList.contains(chumName) ? 'add' : 'remove']('on');
+      });
+      $$('.chum-bar .icon').forEach($el => {
+        const hasName = $el.classList.contains(chumName);
+        $el.classList[hasName ? 'add' : 'remove']('on');
+        if (hasName) $el.innerText = chumFromText;
       });
     },
     changeLocation: (e, loc) => {

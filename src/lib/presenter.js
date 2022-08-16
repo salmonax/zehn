@@ -196,26 +196,36 @@ const makePresenter = () => ({
   },
   dex: new (class DexPresenter {
     _texts = {}
-    _selectedChum = null
-    _addText(chum, msg) {
+    _unreads = {}
+    _selectedChum = 'fremp' // argh; default, set somewhere else
+    _addText(chum, msg, labelSelector = '.chum-bar .icon') {
       const texts = this._texts;
       if (!texts[chum]) texts[chum] = [];
+      if (chum !== this._selectedChum) {
+        this._unreads[chum] = (this._unreads[chum] || 0) + 1;
+      }
       texts[chum].push(msg);
       this._render(chum);
     }
     _toHTML({ label, text }) {
       return `<div class="dex-msg"><span class="in">${label}</span> ${text}</div>`;
     }
-    _render(chum, rootSelector = '.chum-dex .chums') {
+    _render(chum, rootSelector = '.chum-dex .chums', labelSelector = '.chum-bar .icon') {
       // This is append only and shouldn't be re-rendered from scratch every time. blargh.
       const html = this._texts[chum].map(this._toHTML).join(' ');
       const selector = `${rootSelector} .${chum}`; // NOOO!!!
-      if ($(selector) === null) console.error(selector)
+      if ($(selector) === null) console.error(selector);
       $(selector).innerHTML = html;
       $(selector).scrollTo({ top: 1000, behavior: 'smooth' });
+      if (this._selectedChum !== chum) {
+        $(labelSelector+'.'+chum).innerText =
+          '*'+cap(chum) + (this._unreads[chum] ? `(${this._unreads[chum]})` : '');
+      }
     }
     selectChum(chumName) {
+      console.log(chumName);
       this._selectedChum = chumName;
+      this._unreads[chumName] = 0;
     }
     handleCheckAndUpdate = (gameTime, startTime, { dex: dexData }) => {
       // Argh! This should be in the engine.
@@ -336,7 +346,7 @@ const makePresenter = () => ({
   })(),
   game: {
     init(engine) {
-      const STARTING_ROOM = 'bistro';
+      const STARTING_ROOM = 'apartment';
       $('.chum-dex .side').innerText = ascii.chum;
       $('.status .location').innerText = STARTING_ROOM; // not here, holy shit.
       engine.startLoop();
@@ -365,12 +375,12 @@ const makePresenter = () => ({
         type(`ARGH, STOP DREAMING ABOUT THIS KEYGEN INTRO STUFF!`, c => {
           audio.fx.telemetry.currentTime = 0;
           $('.awaken .comment').innerText += c;
-        }, 10, 50)
+        }, 30, 0)
           .then(_ => {
             type('WAKE UP!', c => {
               audio.fx.telemetry.currentTime = 0;
               $('.awaken .link').innerText += c;
-            }, 10, 50);
+            }, 30, 0);
           });
       }, 6000);
 

@@ -397,12 +397,14 @@ body * {
 .chum-bar {
   width: 100%;
   display: flex;
+  flex-shrink: 0;
   margin-right: 2px;
 }
 .chum-bar .icon {
   user-select: none;
   cursor: pointer;
-  flex-grow: 1;
+  flex-grow: 0;
+  width: 100%;
   margin: 1px;
   padding: 6px 10px;
   height: 30px;
@@ -412,7 +414,9 @@ body * {
 .chum-bar .icon:hover {
   background: #445;
 }
-
+.chum-bar .icon.on {
+  text-decoration: underline;
+}
 .interactables, .interactables > * {
   display: flex;
 }
